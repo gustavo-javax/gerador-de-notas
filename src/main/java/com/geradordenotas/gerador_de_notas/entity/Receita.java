@@ -21,9 +21,10 @@ public class Receita {
     private Long id;
     private String descricao;
     private BigDecimal valor;
-    private LocalDate date;
+    private LocalDate data;
     @Enumerated(EnumType.STRING)
-    private FonteReceita fonteReceita;
+    private FonteReceita fonte;
+
 
 
 }
