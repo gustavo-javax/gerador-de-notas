@@ -5,6 +5,7 @@ import com.geradordenotas.gerador_de_notas.repository.DespesaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +36,9 @@ public class DespesaService {
         despesarepo.deleteById(id);
     }
 
+//    public List<Despesa> buscarPorPeriodo(LocalDate inicio, LocalDate fim){
+//        return despesarepo.findByDataBetween(inicio, fim);
+//    }
 
 
 

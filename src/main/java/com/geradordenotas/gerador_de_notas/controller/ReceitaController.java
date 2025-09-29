@@ -1,12 +1,17 @@
 package com.geradordenotas.gerador_de_notas.controller;
 
+import com.geradordenotas.gerador_de_notas.entity.Despesa;
 import com.geradordenotas.gerador_de_notas.entity.Receita;
+import com.geradordenotas.gerador_de_notas.service.DespesaService;
 import com.geradordenotas.gerador_de_notas.service.ReceitaService;
+import com.geradordenotas.gerador_de_notas.service.RelatorioDespesaService;
+import com.geradordenotas.gerador_de_notas.service.RelatorioReceitaService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +22,7 @@ import java.util.Optional;
 public class ReceitaController {
 
     private final ReceitaService reService;
+    private final RelatorioReceitaService relatorioReceitaService;
 
     @PostMapping
     public Receita criar(@RequestBody Receita receita){
@@ -60,6 +66,13 @@ public class ReceitaController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/relatorio")
+    public ResponseEntity<byte[]> gerarRelatorio(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim) {
+        return relatorioReceitaService.gerarRelatorio(inicio, fim);
     }
 }
 
