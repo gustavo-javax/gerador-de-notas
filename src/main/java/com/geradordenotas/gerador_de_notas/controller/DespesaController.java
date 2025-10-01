@@ -4,6 +4,7 @@ import com.geradordenotas.gerador_de_notas.entity.Despesa;
 import com.geradordenotas.gerador_de_notas.service.DespesaService;
 import com.geradordenotas.gerador_de_notas.service.RelatorioDespesaService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +24,11 @@ public class DespesaController {
 
     @PostMapping
     @Operation(summary = "Criar despesas", description = "Essa rota cria no banco de dados uma despesa")
-    public Despesa criar(@RequestBody Despesa despesa) {
-        return despesaService.criar(despesa);
+    public ResponseEntity<Despesa> criar(@RequestBody @Valid Despesa despesa) {
+        Despesa criada = despesaService.criar(despesa);
+        return ResponseEntity
+                .status(201) // 201 Created
+                .body(criada);
     }
 
     @GetMapping
@@ -47,7 +51,7 @@ public class DespesaController {
     // Atualizar despesa existente
     @PutMapping("/{id}")
     @Operation(summary = "Atualiza a Despesa", description = "Essa rota atualiza as despesas")
-    public ResponseEntity<Despesa> atualizar(@PathVariable Long id, @RequestBody Despesa despesa) {
+    public ResponseEntity<Despesa> atualizar(@PathVariable Long id, @RequestBody @Valid Despesa despesa) {
         Optional<Despesa> despesaExistente = despesaService.buscarPorId(id);
         if (despesaExistente.isPresent()) {
             despesa.setId(id); // mantém o mesmo ID
@@ -58,14 +62,13 @@ public class DespesaController {
         }
     }
 
-    // Deletar despesa por ID
     @DeleteMapping("/{id}")
     @Operation(summary = "Deleta a despesa", description = "Essa rota deleta uma despesa por ID")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         Optional<Despesa> despesaExistente = despesaService.buscarPorId(id);
         if (despesaExistente.isPresent()) {
             despesaService.deletar(id);
-            return ResponseEntity.noContent().build(); // 204 No Content
+            return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -77,6 +80,14 @@ public class DespesaController {
     public ResponseEntity<byte[]> gerarRelatorio(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim) {
+
+        if (inicio == null || fim == null){
+            throw new RuntimeException("Parâmetros 'inicio' e 'fim' são obrigatórios.");
+        }
+        if (fim.isBefore(inicio)){
+            throw new RuntimeException("A data fim nao pode ser anterior ao inicio");
+        }
+
         return relatorioService.gerarRelatorio(inicio, fim);
     }
 
