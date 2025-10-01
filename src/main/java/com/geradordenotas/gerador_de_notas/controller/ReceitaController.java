@@ -6,6 +6,7 @@ import com.geradordenotas.gerador_de_notas.service.DespesaService;
 import com.geradordenotas.gerador_de_notas.service.ReceitaService;
 import com.geradordenotas.gerador_de_notas.service.RelatorioDespesaService;
 import com.geradordenotas.gerador_de_notas.service.RelatorioReceitaService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ public class ReceitaController {
     private final RelatorioReceitaService relatorioReceitaService;
 
     @PostMapping
+    @Operation(summary = "Cria uma receita")
     public Receita criar(@RequestBody Receita receita){
 
         return reService.criar(receita);
@@ -32,11 +34,13 @@ public class ReceitaController {
     }
 
     @GetMapping
+    @Operation(summary = "Lista todas as receitas")
     public List<Receita> listar(){
         return reService.listar();
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Lista uma receita por ID")
     public ResponseEntity<Receita> buscar(@PathVariable Long id) {
         Optional<Receita> receita = reService.buscarPorId(id);
 
@@ -48,6 +52,7 @@ public class ReceitaController {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Atualiza uma receita por ID")
     public ResponseEntity<Receita> atualizar(@PathVariable Long id, @RequestBody Receita receita) {
         return reService.buscarPorId(id)
                 .map(r -> {
@@ -58,6 +63,7 @@ public class ReceitaController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Deleta uma receita")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         Optional<Receita> receitaExistente = reService.buscarPorId(id);
         if (receitaExistente.isPresent()) {
@@ -69,6 +75,7 @@ public class ReceitaController {
     }
 
     @GetMapping("/relatorio")
+    @Operation(summary = "Cria um relatorio das receita")
     public ResponseEntity<byte[]> gerarRelatorio(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim) {
