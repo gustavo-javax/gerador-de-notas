@@ -7,9 +7,11 @@ import com.geradordenotas.gerador_de_notas.service.ReceitaService;
 import com.geradordenotas.gerador_de_notas.service.RelatorioDespesaService;
 import com.geradordenotas.gerador_de_notas.service.RelatorioReceitaService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -27,7 +29,7 @@ public class ReceitaController {
 
     @PostMapping
     @Operation(summary = "Cria uma receita")
-    public Receita criar(@RequestBody Receita receita){
+    public Receita criar(@RequestBody @Valid  Receita receita){
 
         return reService.criar(receita);
 
@@ -45,19 +47,19 @@ public class ReceitaController {
         Optional<Receita> receita = reService.buscarPorId(id);
 
         if (receita.isPresent()) {
-            return ResponseEntity.ok(receita.get()); // retorna 200 OK com o objeto
+            return ResponseEntity.ok(receita.get());
         } else {
-            return ResponseEntity.notFound().build(); // retorna 404 se não encontrou
+            return ResponseEntity.notFound().build();
         }
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Atualiza uma receita por ID")
-    public ResponseEntity<Receita> atualizar(@PathVariable Long id, @RequestBody Receita receita) {
+    public ResponseEntity<Receita> atualizar(@PathVariable Long id, @RequestBody @Valid Receita receita) {
         return reService.buscarPorId(id)
                 .map(r -> {
-                    receita.setId(id); // mantém o mesmo ID
-                    return ResponseEntity.ok(reService.criar(receita)); // salvar atualizando
+                    receita.setId(id);
+                    return ResponseEntity.ok(reService.criar(receita));
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -79,6 +81,14 @@ public class ReceitaController {
     public ResponseEntity<byte[]> gerarRelatorio(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim) {
+
+        if(inicio == null || fim == null){
+            throw new IllegalArgumentException("Parâmetros 'inicio' e 'fim' são obrigatórios.");
+        }
+        if(fim.isBefore(inicio)){
+            throw new IllegalArgumentException("A data final nao pode ser anterior a data inicio");
+        }
+
         return relatorioReceitaService.gerarRelatorio(inicio, fim);
     }
 }
